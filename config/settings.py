@@ -3,8 +3,8 @@ from decouple import config
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = config('SECRET_KEY', default='JcMSNpqjt5a5Sq36KBqHgino9VlB7q7tCKerqr0gpQV7UXEmz0wAf9LBIvou4JAyvN0')
-DEBUG = config('DEBUG', default=True, cast=bool)
+SECRET_KEY = 'JcMSNpqjt5a5Sq36KBqHgino9VlB7q7tCKerqr0gpQV7UXEmz0wAf9LBIvou4JAyvN0'
+DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
@@ -22,7 +22,10 @@ INSTALLED_APPS = [
     'articles',
 ]
 
+# to handle staticfiles for me
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,9 +66,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
@@ -81,21 +81,12 @@ SWAGGER_SETTINGS = {
     }
 }
 
-LANGUAGE_CODE = 'uz'
 TIME_ZONE = 'Asia/Tashkent'
 USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'static_files/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 AUTH_USER_MODEL = 'accounts.User'
-
-# Cache settings
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-    }
-}

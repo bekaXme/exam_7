@@ -11,10 +11,12 @@ from django.urls import reverse
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
+from drf_yasg.utils import swagger_auto_schema
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
     
+    @swagger_auto_schema(request_body=RegisterSerializer)
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
