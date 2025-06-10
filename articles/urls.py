@@ -1,8 +1,11 @@
-from django.urls import path
-from .views import ArticleListCreateView, ArticleDetailView, ArticleModerationView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ArticleViewSet, ApprovalViewSet
+
+router = DefaultRouter()
+router.register(r'articles', ArticleViewSet)
+router.register(r'approvals', ApprovalViewSet)
 
 urlpatterns = [
-    path('', ArticleListCreateView.as_view(), name='article_list_create'),
-    path('<int:pk>/', ArticleDetailView.as_view(), name='article_detail'),
-    path('<int:pk>/moderate/', ArticleModerationView.as_view(), name='article_moderate'),
+    path('', include(router.urls)),
 ]
