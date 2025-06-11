@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from ckeditor.fields import RichTextField
+
 
 class Article(models.Model):
     STATUS = (
@@ -9,7 +11,7 @@ class Article(models.Model):
         ('R', 'Rejected'),
     )
     title = models.CharField(max_length=255)
-    content = models.TextField()
+    content = RichTextField()
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

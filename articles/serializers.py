@@ -3,6 +3,14 @@ from .models import Article, Approval
 from accounts.serializers import UserSerializer
 from rest_framework import serializers
 from .models import FAQ
+from rest_framework import serializers
+from .models import Article
+
+class ArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ['id', 'title', 'content', 'author', 'status', 'created_at', 'view_count']
+        read_only_fields = ['author', 'status', 'created_at', 'view_count']
 
 
 class ArticleSerializer(serializers.ModelSerializer):

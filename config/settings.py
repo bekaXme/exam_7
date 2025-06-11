@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'accounts',
     'articles',
+    'ckeditor',
 ]
 
 # to handle staticfiles for me
