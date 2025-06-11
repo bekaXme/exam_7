@@ -17,6 +17,8 @@ class Article(models.Model):
     )
     status = models.CharField(max_length=1, choices=STATUS, default='P')
     created_at = models.DateTimeField(auto_now_add=True)
+    view_count = models.PositiveIntegerField(default=0) 
+
 
     def __str__(self):
         return self.title
@@ -38,3 +40,15 @@ class Approval(models.Model):
 
     def __str__(self):
         return f"{self.article.title} - {self.monitor.username}"
+    
+    
+class FAQ(models.Model):
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+
+    def __str__(self):
+        return self.question
+
+    class Meta:
+        verbose_name = _("FAQ")
+        verbose_name_plural = _("FAQs")

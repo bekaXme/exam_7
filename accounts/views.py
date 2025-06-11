@@ -1,11 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from rest_framework.exceptions import PermissionDenied
-from .models import User
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PasswordChangeSerializer, PasswordResetSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -13,20 +9,32 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from drf_yasg.utils import swagger_auto_schema
 
+from .models import User
+from .serializers import (
+    UserSerializer,
+    RegisterSerializer,
+    LoginSerializer,
+    PasswordChangeSerializer,
+    PasswordResetSerializer
+)
+
+
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
-    
+
     @swagger_auto_schema(request_body=RegisterSerializer)
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
+            serializer.save()
             return Response({"message": "User created"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
-    
+
+    @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -37,11 +45,15 @@ class LoginView(APIView):
             'access': str(refresh.access_token),
         })
 
+
 class ProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
-    
+
+    @swagger_auto_schema(request_body=UserSerializer)
     def put(self, request):
         serializer = UserSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
@@ -49,7 +61,11 @@ class ProfileView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PasswordChangeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(request_body=PasswordChangeSerializer)
     def post(self, request):
         serializer = PasswordChangeSerializer(data=request.data)
         if serializer.is_valid():
@@ -61,9 +77,11 @@ class PasswordChangeView(APIView):
             return Response({"error": "Old password incorrect"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PasswordResetView(APIView):
     permission_classes = [permissions.AllowAny]
-    
+
+    @swagger_auto_schema(request_body=PasswordResetSerializer)
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data)
         if serializer.is_valid():
@@ -86,16 +104,18 @@ class PasswordResetView(APIView):
                 return Response({"error": "Email not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PasswordResetConfirmView(APIView):
     permission_classes = [permissions.AllowAny]
-    
+
+    @swagger_auto_schema(request_body=PasswordChangeSerializer)
     def post(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
-        
+
         if user is not None and default_token_generator.check_token(user, token):
             new_password = request.data.get('new_password')
             if new_password:
@@ -105,9 +125,10 @@ class PasswordResetConfirmView(APIView):
             return Response({"error": "New password is required"}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"error": "Invalid token or user ID"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class SetMonitorView(APIView):
     permission_classes = [permissions.IsAdminUser]
-    
+
     def post(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)

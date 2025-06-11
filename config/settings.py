@@ -4,7 +4,7 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'JcMSNpqjt5a5Sq36KBqHgino9VlB7q7tCKerqr0gpQV7UXEmz0wAf9LBIvou4JAyvN0'
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
